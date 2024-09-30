@@ -1,0 +1,14 @@
+ version: v2
+proxy_server: "{{proxy_server}}"
+onboarding:
+  join_method: github
+  token: "{{token}}"
+oneshot: true
+storage:
+  type: memory
+outputs:
+  - type: application
+    app_name: "{{app_name}}"
+    destination:
+      type: directory
+      path: "{{path}}"

@@ -1,0 +1,26 @@
+name: Deploy to ArgoCD
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Deploy to ArgoCD
+        uses: paritytech/argocd-deployment-action@main
+        with:
+          environment: "parity-stg" # or 'parity-prod', adjust as needed
+          tag: "whatever-you-pushed:v1.2.3" # the full path is defined in ./helm, that's the rest
+          app_name: "your-app-name" # replace with your ArgoCD application name
+          app_packages: "your-app-name1,your-app-name2" # or leave it empty, if it's just one app
+          argocd_server: ${{ vars.ARGOCD_SERVER }} # this is the argocd server for parity-stg
+          teleport_token: token-for-teleport # ask devops team to provide. Usually the same for all envs.
+          teleport_app_name: "${{ vars.ARGOCD_APP_NAME }}" # or argocd-prod, argocd-stg depending on env
+        secrets:
+          ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }} # devops team should provide this & set as secret in github (env specific)

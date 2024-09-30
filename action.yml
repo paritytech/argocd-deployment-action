@@ -1,0 +1,111 @@
+name: "ArgoCD Deploy with Teleport Auth"
+description: "Deploy to ArgoCD with Teleport authentication"
+inputs:
+  environment:
+    description: "Deployment environment (e.g., parity-stg, parity-prod)"
+    required: true
+  tag:
+    description: "Docker image tag to deploy. Format: paritytech-identity-backend:v1.2.3"
+    required: true
+  app_name:
+    description: "ArgoCD application name you're going to deploy (e.g., parityio, identity-backend, etc)"
+    required: true
+  app_packages:
+    description: "ArgoCD application packages (comma separated). Default is same as app_name"
+    required: false
+    default: ${{ inputs.app_name }}
+  argocd_server:
+    description: "ArgoCD server URL (e.g. argocd-prod.teleport.parity.io or argocd-stg.teleport.parity.io). Different per environment"
+    required: true
+  argocd_timeout:
+    description: "ArgoCD sync timeout in seconds. Default is 300"
+    required: false
+    default: 300
+  teleport_token:
+    description: "Teleport token for authentication (Request devops team to provide - individual per app). It's not a secret"
+    required: true
+  teleport_app_name:
+    description: "Teleport application name (argocd-prod, argocd-stg, etc)"
+    required: true
+  teleport_proxy_server:
+    description: "Teleport proxy server address"
+    required: false
+    default: "teleport.parity.io:443"
+  teleport_bin:
+    description: "Teleport binary version"
+    required: false
+    default: "teleport-v16.0.3-linux-amd64-bin.tar.gz"
+  argocd_version:
+    description: "ArgoCD CLI version"
+    required: false
+    default: "v2.11.4"
+secrets:
+  ARGOCD_AUTH_TOKEN:
+    description: "ArgoCD auth token"
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Check out repository
+      uses: actions/checkout@v4
+
+    - name: Create Teleport config from template
+      shell: bash
+      run: |
+        sed -e 's|{{proxy_server}}|${{ inputs.teleport_proxy_server }}|g' \
+            -e 's|{{token}}|${{ inputs.teleport_token }}|g' \
+            -e 's|{{app_name}}|${{ inputs.teleport_app_name }}|g' \
+            -e 's|{{path}}|/tmp/machine-id/${{ inputs.environment }}|g' \
+            .github/teleport-config-template.yaml > teleport-config.yaml
+
+    - name: Deploy to ArgoCD
+      shell: bash
+      env:
+        ARGOCD_SERVER: ${{ inputs.argocd_server }}
+        ENV: ${{ inputs.environment }}
+        TAG: ${{ inputs.tag }}
+        APP: ${{ inputs.app_name }}
+        PACKAGES: ${{ inputs.app_packages }}
+        ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }}
+        TELEPORT_BIN: ${{ inputs.teleport_bin }}
+        ARGOCD_VERSION: ${{ inputs.argocd_version }}
+      run: |
+        set -e
+
+        TELEPORT_CERTS="/tmp/machine-id/${{ inputs.environment }}"
+
+        # Install ArgoCD CLI
+        curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/download/${ARGOCD_VERSION}/argocd-linux-amd64
+        chmod +x /usr/local/bin/argocd
+
+        # Install Teleport CLI
+        curl -L -o $TELEPORT_BIN https://get.gravitational.com/$TELEPORT_BIN
+        tar -xzvf $TELEPORT_BIN
+        sudo mv teleport/tctl teleport/teleport teleport/tbot /usr/local/bin/
+        teleport version
+
+        # Authenticate with Teleport
+        tbot start -c ./teleport-config.yaml
+
+        # ArgoCD Set & Sync
+        ARGOCD_CERTS="--client-crt=$TELEPORT_CERTS/tlscert --client-crt-key=$TELEPORT_CERTS/key"
+        ARGOCD_OPTS="--grpc-web $ARGOCD_CERTS --auth-token=$ARGOCD_AUTH_TOKEN"
+
+        echo "App: $APP"
+        echo "Tag: $TAG"
+        echo "Env: $ENV"
+        echo "Server: $ARGOCD_SERVER"
+
+        argocd app list $ARGOCD_OPTS
+
+        # split app_packages by comma and add -p {}.image.tag=${{ inputs.tag }} to ARGOCD_SYNC_ARGS
+        ARGOCD_SYNC_ARGS=$(echo "$PACKAGES" | tr ',' '\n' | xargs -I {} echo "-p {}.image.tag=${{ inputs.tag }}" | tr '\n' ' ')
+
+        echo "Setting app: 'argocd app set ${APP} ${ARGOCD_SYNC_ARGS} ${ARGOCD_OPTS}'"
+        argocd app set $APP $ARGOCD_SYNC_ARGS $ARGOCD_OPTS
+
+        echo "Syncing app..."
+        argocd app sync $APP $ARGOCD_OPTS
+
+        echo "Waiting for app..."
+        argocd app wait $APP --timeout ${{ inputs.argocd_timeout }} $ARGOCD_OPTS
