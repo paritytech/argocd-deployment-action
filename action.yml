@@ -13,14 +13,14 @@ inputs:
   app_packages:
     description: "ArgoCD application packages (comma separated). Default is same as app_name"
     required: false
-    default: ${{ inputs.app_name }}
+    default: ${{ github.event.inputs.app_name }}
   argocd_server:
     description: "ArgoCD server URL (e.g. argocd-prod.teleport.parity.io or argocd-stg.teleport.parity.io). Different per environment"
     required: true
   argocd_timeout:
     description: "ArgoCD sync timeout in seconds. Default is 300"
     required: false
-    default: 300
+    default: "300"
   teleport_token:
     description: "Teleport token for authentication (Request devops team to provide - individual per app). It's not a secret"
     required: true
