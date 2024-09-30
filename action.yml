@@ -89,9 +89,9 @@ runs:
         chmod +x /usr/local/bin/argocd
 
         # Install Teleport CLI
-        curl -L -o $TELEPORT_BIN https://get.gravitational.com/$TELEPORT_BIN
-        tar -xzvf $TELEPORT_BIN
-        sudo mv teleport/tctl teleport/teleport teleport/tbot /usr/local/bin/
+        curl -L -o /tmp/$TELEPORT_BIN https://get.gravitational.com/$TELEPORT_BIN
+        tar -xzvf /tmp/$TELEPORT_BIN -C /tmp/teleport
+        sudo mv /tmp/teleport/tctl /tmp/teleport/teleport /tmp/teleport/tbot /usr/local/bin/
         teleport version
 
         # Authenticate with Teleport
@@ -107,7 +107,7 @@ runs:
         echo "Env: $ENV"
         echo "Server: $ARGOCD_SERVER"
         echo "Opts: $ARGOCD_OPTS"
-        ls -lsa ${{ env.TELEPORT_CERTS }}
+        ls -lsa $TELEPORT_CERTS
 
         argocd app list $ARGOCD_OPTS
 
