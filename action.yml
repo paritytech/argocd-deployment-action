@@ -95,6 +95,7 @@ runs:
         teleport version
 
         # Authenticate with Teleport
+        echo "Authenticating with Teleport..."
         tbot start -c /tmp/teleport-config.yaml
 
         # ArgoCD Set & Sync
@@ -105,6 +106,8 @@ runs:
         echo "Tag: $TAG"
         echo "Env: $ENV"
         echo "Server: $ARGOCD_SERVER"
+        echo "Opts: $ARGOCD_OPTS"
+        ls -lsa ${{ env.TELEPORT_CERTS }}
 
         argocd app list $ARGOCD_OPTS
 
