@@ -22,5 +22,4 @@ jobs:
           argocd_server: ${{ vars.ARGOCD_SERVER }} # this is the argocd server for parity-stg
           teleport_token: token-for-teleport # ask devops team to provide. Usually the same for all envs.
           teleport_app_name: "${{ vars.ARGOCD_APP_NAME }}" # or argocd-prod, argocd-stg depending on env
-        secrets:
-          ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }} # devops team should provide this & set as secret in github (env specific)
+          argocd_auth_token: ${{ secrets.ARGOCD_AUTH_TOKEN }} # devops team should provide this & set as secret in github (env specific)

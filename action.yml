@@ -39,9 +39,8 @@ inputs:
     description: "ArgoCD CLI version"
     required: false
     default: "v2.11.4"
-secrets:
-  ARGOCD_AUTH_TOKEN:
-    description: "ArgoCD auth token"
+  argocd_auth_token:
+    description: "ArgoCD auth token (provided by devops team)"
     required: true
 runs:
   using: "composite"
@@ -66,7 +65,7 @@ runs:
         TAG: ${{ inputs.tag }}
         APP: ${{ inputs.app_name }}
         PACKAGES: ${{ inputs.app_packages }}
-        ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }}
+        ARGOCD_AUTH_TOKEN: ${{ inputs.argocd_auth_token }}
         TELEPORT_BIN: ${{ inputs.teleport_bin }}
         ARGOCD_VERSION: ${{ inputs.argocd_version }}
       run: |

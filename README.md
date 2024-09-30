@@ -18,6 +18,7 @@ This GitHub Action allows you to deploy applications to ArgoCD with Teleport aut
 | `app_packages`          | ArgoCD application packages (comma separated). Default is same as app_name               | No       | Same as `app_name`                      |
 | `argocd_server`         | ArgoCD server URL (e.g. argocd-prod.teleport.parity.io or argocd-stg.teleport.parity.io) | Yes      |                                         |
 | `argocd_timeout`        | ArgoCD sync timeout in seconds                                                           | No       | 300                                     |
+| `argocd_auth_token`     | ArgoCD auth token (provided by devops team)                                              | Yes      |                                         |
 | `teleport_token`        | Teleport token for authentication (Request devops team to provide - individual per app)  | Yes      |                                         |
 | `teleport_app_name`     | Teleport application name (argocd-prod, argocd-stg, etc)                                 | Yes      |                                         |
 | `teleport_proxy_server` | Teleport proxy server address                                                            | No       | teleport.parity.io:443                  |
@@ -42,18 +43,17 @@ To use this action in your workflow, you can add the following step:
     tag: "whatever-you-pushed:v1.2.3" # the full path is defined in ./helm, that's the rest
     app_name: "your-app-name" # replace with your ArgoCD application name
     app_packages: "your-app-name1,your-app-name2" # or leave it empty, if it's just one app
-    argocd_server: ${{ vars.ARGOCD_SERVER }} # this is the argocd server for parity-stg
+    argocd_server: ${{ vars.ARGOCD_SERVER }} # this is the argocd server, different per env
     teleport_token: token-for-teleport # ask devops team to provide. Usually the same for all envs.
-    teleport_app_name: "${{ vars.ARGOCD_APP_NAME }}" # or argocd-prod, argocd-stg depending on env
-  secrets:
-    ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }} # devops team should provide this & set as secret in github (env specific)
+    teleport_app_name: "${{ vars.ARGOCD_APP_NAME }}" # or argocd-prod, argocd-stg, argocd-chains etc, depending where you app is deployed
+    argocd_auth_token: ${{ secrets.ARGOCD_AUTH_TOKEN }} # devops team should provide this & set as secret in github (env specific)
 ```
 
 ## Notes
 
 - The `teleport_token` is not a secret and should be provided by the DevOps team. It's usually the same for all environments.
-- The `ARGOCD_AUTH_TOKEN` should be set as a secret in your GitHub repository settings and is environment-specific.
-- The `argocd_server` and `teleport_app_name` can be set as variables in your GitHub repository settings if they differ between environments.
+- The `secrets.ARGOCD_AUTH_TOKEN` should be set as a secret in your GitHub repository settings and is environment-specific.
+- The `vars.ARGOCD_SERVER` and `vars.ARGOCD_APP_NAME` can be set as variables in your GitHub repository settings if they differ between environments.
 
 ## License
 
