@@ -90,7 +90,7 @@ runs:
 
         # Install Teleport CLI
         curl -L -o /tmp/$TELEPORT_BIN https://get.gravitational.com/$TELEPORT_BIN
-        tar -xzvf /tmp/$TELEPORT_BIN -C /tmp/teleport
+        tar -xzvf /tmp/$TELEPORT_BIN -C /tmp
         sudo mv /tmp/teleport/tctl /tmp/teleport/teleport /tmp/teleport/tbot /usr/local/bin/
         teleport version
 
