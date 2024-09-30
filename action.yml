@@ -55,7 +55,7 @@ runs:
             -e 's|{{token}}|${{ inputs.teleport_token }}|g' \
             -e 's|{{app_name}}|${{ inputs.teleport_app_name }}|g' \
             -e 's|{{path}}|/tmp/machine-id/${{ inputs.environment }}|g' \
-            .github/teleport-config-template.yaml > teleport-config.yaml
+            teleport-config-template.yaml > teleport-config.yaml
 
     - name: Deploy to ArgoCD
       shell: bash
