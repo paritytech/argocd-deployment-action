@@ -15,7 +15,7 @@ This GitHub Action allows you to deploy applications to ArgoCD with Teleport aut
 | `environment`           | Deployment environment (e.g., parity-stg, parity-prod)                                   | Yes      |                                         |
 | `tag`                   | Docker image tag to deploy. Format: paritytech-identity-backend:v1.2.3                   | Yes      |                                         |
 | `app_name`              | ArgoCD application name you're going to deploy (e.g., parityio, identity-backend, etc)   | Yes      |                                         |
-| `app_packages`          | ArgoCD application packages (comma separated). Default is same as app_name               | No       | Same as `app_name`                      |
+| `app_packages`          | ArgoCD application packages (comma separated). Default is same as app_name               | Yes      |                                         |
 | `argocd_server`         | ArgoCD server URL (e.g. argocd-prod.teleport.parity.io or argocd-stg.teleport.parity.io) | Yes      |                                         |
 | `argocd_timeout`        | ArgoCD sync timeout in seconds                                                           | No       | 300                                     |
 | `argocd_auth_token`     | ArgoCD auth token (provided by devops team)                                              | Yes      |                                         |
@@ -40,9 +40,9 @@ To use this action in your workflow, you can add the following step:
   uses: paritytech/argocd-deployment-action@main
   with:
     environment: "parity-stg" # or 'parity-prod', adjust as needed
-    tag: "whatever-you-pushed:v1.2.3" # the full path is defined in ./helm, that's the rest
-    app_name: "your-app-name" # replace with your ArgoCD application name
-    app_packages: "your-app-name1,your-app-name2" # or leave it empty, if it's just one app
+    tag: "v1.2.3" # or sha. the full path is defined in ./helm
+    app_name: "your-app-name" # application name in ArgoCD
+    app_packages: "your-app-name1,your-app-name2" # how your chart is called, could be several apps
     argocd_server: ${{ vars.ARGOCD_SERVER }} # this is the argocd server, different per env
     teleport_token: token-for-teleport # ask devops team to provide. Usually the same for all envs.
     teleport_app_name: "${{ vars.ARGOCD_APP_NAME }}" # or argocd-prod, argocd-stg, argocd-chains etc, depending where you app is deployed
