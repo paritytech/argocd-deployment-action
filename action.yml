@@ -12,8 +12,7 @@ inputs:
     required: true
   app_packages:
     description: "ArgoCD application packages (comma separated). Default is same as app_name"
-    required: false
-    default: ${{ github.event.inputs.app_name }}
+    required: true
   argocd_server:
     description: "ArgoCD server URL (e.g. argocd-prod.teleport.parity.io or argocd-stg.teleport.parity.io). Different per environment"
     required: true
@@ -107,6 +106,7 @@ runs:
         echo "Env: $ENV"
         echo "Server: $ARGOCD_SERVER"
         echo "Opts: $ARGOCD_OPTS"
+        echo "Packages: $PACKAGES"
         ls -lsa $TELEPORT_CERTS
 
         argocd app list $ARGOCD_OPTS
