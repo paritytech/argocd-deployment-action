@@ -99,7 +99,7 @@ runs:
 
         # ArgoCD Set & Sync
         ARGOCD_CERTS="--client-crt=$TELEPORT_CERTS/tlscert --client-crt-key=$TELEPORT_CERTS/key"
-        ARGOCD_OPTS="--grpc-web $ARGOCD_CERTS --auth-token=$ARGOCD_AUTH_TOKEN"
+        ARGOCD_OPTS="--grpc-web $ARGOCD_CERTS --grpc-web-root-path / --auth-token=$ARGOCD_AUTH_TOKEN"
 
         echo "App: $APP"
         echo "Tag: $TAG"
