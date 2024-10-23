@@ -9,9 +9,6 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
       - name: Deploy to ArgoCD
         uses: paritytech/argocd-deployment-action@main
         with:

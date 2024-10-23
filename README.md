@@ -19,6 +19,7 @@ This GitHub Action allows you to deploy applications to ArgoCD with Teleport aut
 | `argocd_server`         | ArgoCD server URL (e.g. argocd-prod.teleport.parity.io or argocd-stg.teleport.parity.io) | Yes      |                                         |
 | `argocd_timeout`        | ArgoCD sync timeout in seconds                                                           | No       | 300                                     |
 | `argocd_auth_token`     | ArgoCD auth token (provided by devops team)                                              | Yes      |                                         |
+| `argocd_additional_args`| ArgoCD additional options for `argocd app set command`                                   | No       |                                         |
 | `teleport_token`        | Teleport token for authentication (Request devops team to provide - individual per app)  | Yes      |                                         |
 | `teleport_app_name`     | Teleport application name (argocd-prod, argocd-stg, etc)                                 | Yes      |                                         |
 | `teleport_proxy_server` | Teleport proxy server address                                                            | No       | teleport.parity.io:443                  |
@@ -43,6 +44,7 @@ To use this action in your workflow, you can add the following step:
     tag: "v1.2.3" # or sha. the full path is defined in ./helm
     app_name: "your-app-name" # application name in ArgoCD
     app_packages: "your-app-name1,your-app-name2" # how your chart is called, could be several apps
+    argocd_additional_args: "--helm-set api.image.tag="${VERSION}" # additional option to passs for argocd; just an example, not required
     argocd_server: ${{ vars.ARGOCD_SERVER }} # this is the argocd server, different per env
     teleport_token: token-for-teleport # ask devops team to provide. Usually the same for all envs.
     teleport_app_name: "${{ vars.ARGOCD_APP_NAME }}" # or argocd-prod, argocd-stg, argocd-chains etc, depending where you app is deployed

@@ -20,6 +20,9 @@ inputs:
     description: "ArgoCD sync timeout in seconds. Default is 300"
     required: false
     default: "300"
+  argocd_additional_args:
+    description: "Additional ArgoCD arguments"
+    required: false
   teleport_token:
     description: "Teleport token for authentication (Request devops team to provide - individual per app). It's not a secret"
     required: true
@@ -78,6 +81,7 @@ runs:
         ARGOCD_AUTH_TOKEN: ${{ inputs.argocd_auth_token }}
         TELEPORT_BIN: ${{ inputs.teleport_bin }}
         ARGOCD_VERSION: ${{ inputs.argocd_version }}
+        ARGOCD_ADDITIONAL_ARGS: ${{ inputs.argocd_additional_args }}
       run: |
         set -e
 
@@ -115,7 +119,7 @@ runs:
         ARGOCD_SYNC_ARGS=$(echo "$PACKAGES" | tr ',' '\n' | xargs -I {} echo "-p {}.image.tag=${{ inputs.tag }}" | tr '\n' ' ')
 
         echo "Setting app: 'argocd app set ${APP} ${ARGOCD_SYNC_ARGS} ${ARGOCD_OPTS}'"
-        argocd app set $APP $ARGOCD_SYNC_ARGS $ARGOCD_OPTS
+        argocd app set $APP $ARGOCD_ADDITIONAL_ARGS $ARGOCD_SYNC_ARGS $ARGOCD_OPTS
 
         echo "Syncing app..."
         argocd app sync $APP $ARGOCD_OPTS
