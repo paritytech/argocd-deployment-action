@@ -88,8 +88,8 @@ runs:
         TELEPORT_CERTS="/tmp/machine-id/${{ inputs.environment }}"
 
         # Install ArgoCD CLI
-        curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/download/${ARGOCD_VERSION}/argocd-linux-amd64
-        chmod +x /usr/local/bin/argocd
+        sudo curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/download/${ARGOCD_VERSION}/argocd-linux-amd64
+        sudo chmod +x /usr/local/bin/argocd
 
         # Install Teleport CLI
         curl -L -o /tmp/$TELEPORT_BIN https://get.gravitational.com/$TELEPORT_BIN
