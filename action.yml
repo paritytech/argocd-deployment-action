@@ -121,8 +121,11 @@ runs:
         echo "Setting app: 'argocd app set ${APP} ${ARGOCD_SYNC_ARGS} ${ARGOCD_OPTS}'"
         argocd app set $APP $ARGOCD_ADDITIONAL_ARGS $ARGOCD_SYNC_ARGS $ARGOCD_OPTS
 
+        echo "Waiting for app after set..."
+        argocd app wait $APP --timeout ${{ inputs.argocd_timeout }} $ARGOCD_OPTS
+
         echo "Syncing app..."
         argocd app sync $APP $ARGOCD_OPTS
 
-        echo "Waiting for app..."
+        echo "Waiting for app after sync..."
         argocd app wait $APP --timeout ${{ inputs.argocd_timeout }} $ARGOCD_OPTS
