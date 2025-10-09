@@ -46,7 +46,7 @@ inputs:
     required: true
   argocd_auto_sync_disabled:
     description: "ArgoCD autosync status"
-    default: true
+    default: "true"
 runs:
   using: "composite"
   steps:
@@ -127,7 +127,7 @@ runs:
         echo "Waiting for app after set..."
         argocd app wait $APP --timeout ${{ inputs.argocd_timeout }} --health $ARGOCD_OPTS
 
-        if [[ ${{ inputs.argocd_auto_sync_disabled }} ]]; then
+        if [[ "${{ inputs.argocd_auto_sync_disabled }}" == "true" ]]; then
           echo "Syncing app manually..."
           argocd app sync $APP $ARGOCD_OPTS
 
