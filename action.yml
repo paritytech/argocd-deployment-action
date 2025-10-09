@@ -44,6 +44,9 @@ inputs:
   argocd_auth_token:
     description: "ArgoCD auth token (provided by devops team)"
     required: true
+  argocd_auto_sync_disabled:
+    description: "ArgoCD autosync status"
+    default: "true"
 runs:
   using: "composite"
   steps:
@@ -121,11 +124,13 @@ runs:
         echo "Setting app: 'argocd app set ${APP} ${ARGOCD_SYNC_ARGS} ${ARGOCD_OPTS}'"
         argocd app set $APP $ARGOCD_ADDITIONAL_ARGS $ARGOCD_SYNC_ARGS $ARGOCD_OPTS
 
-        echo "Waiting for app after set..."
-        argocd app wait $APP --timeout ${{ inputs.argocd_timeout }} --health $ARGOCD_OPTS
+        if [[ "${{ inputs.argocd_auto_sync_disabled }}" == "true" ]]; then
+          echo "Syncing app manually..."
+          argocd app sync $APP $ARGOCD_OPTS
 
-        # echo "Syncing app..."
-        # argocd app sync $APP $ARGOCD_OPTS
-
-        # echo "Waiting for app after sync..."
-        # argocd app wait $APP --timeout ${{ inputs.argocd_timeout }} $ARGOCD_OPTS
+          echo "Waiting for app after sync..."
+          argocd app wait $APP --timeout ${{ inputs.argocd_timeout }} $ARGOCD_OPTS
+        else
+          echo "Waiting for app after set..."
+          argocd app wait $APP --timeout ${{ inputs.argocd_timeout }} --health $ARGOCD_OPTS
+        fi
